@@ -3,7 +3,7 @@ name: Update TG Subscribers to Notion
 on:
   workflow_dispatch: # Запуск вручну
   schedule:
-    - cron: "0 0 * * *" # Запуск щодня о 00:00 UTC
+    - cron: "10 20 * * *" # Запуск щодня о 00:00 UTC
 
 jobs:
   update-subscribers:
