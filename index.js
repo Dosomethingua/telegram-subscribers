@@ -41,6 +41,7 @@ const channels = [
   { name: "Not Pixel", link: "@notpixel_channel", pageId: "11ac9b1febab80478ee2f251932a4067" },
   { name: "Supra", link: "@SupraOracles", pageId: "3e9d5a32e3c147a8a6f519b6df411c5e" },
   { name: "Tea", link: "@teaprotocol", pageId: "c703d7c4b94443d59351adc790d16229" },
+  { name: "Major", link: "@starsmajor", pageId: "11cc9b1febab80979911fb99fed569ba" },
   { name: "LayerGame", link: "@LayerGame_chat", pageId: "fe391159117f45baada34694da922ed3" }
 ];
 
