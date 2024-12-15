@@ -26,7 +26,6 @@ const channels = [
   { name: "Supra", link: "@SupraOracles", pageId: "3e9d5a32e3c147a8a6f519b6df411c5e" },
   { name: "Tea", link: "@teaprotocol", pageId: "c703d7c4b94443d59351adc790d16229" },
   { name: "LayerGame", link: "@LayerGame_chat", pageId: "fe391159117f45baada34694da922ed3" },
-  { name: "Orbiter Finance", link: "@orbiterORB", pageId: "2685a32ec78848c5a7513b792ca8b652" },
   { name: "Tiny Verse", link: "@tverseofficialchannel", pageId: "142c9b1febab803091caebd3f0d931ee" },
   { name: "Harvest Moon", link: "@nearharvestmoon", pageId: "14ac9b1febab80468b0fdb3365903ef3" },
   { name: "Hot", link: "@hotonnear", pageId: "135c9b1febab80f88539e4b76c1a76b9" },
