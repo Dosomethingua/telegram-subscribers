@@ -34,34 +34,49 @@ const channels = [
 // Функція для отримання кількості підписників
 async function getSubscribersCount(channel) {
   try {
-    const chat = await bot.getChatMemberCount(channel.link);
-    console.log(`Підписники для ${channel.name}: ${chat}`);
-    return chat;
+    const count = await bot.getChatMemberCount(channel.link);
+    console.log(`Підписники для ${channel.name}: ${count}`);
+    return count;
   } catch (error) {
-    console.error(`Помилка отримання підписників для ${channel.name}:`, error.message);
-    return null; // Повертаємо null у випадку помилки
+    console.error(`Помилка для ${channel.name}:`, error.message);
+    return 0;
   }
 }
 
-// Оновлення даних у Notion
-async function updateNotionDatabase(channel, count) {
-  if (count === null) {
-    console.log(`Пропускаємо оновлення для ${channel.name} через помилку отримання даних.`);
-    return;
+// Отримання попереднього значення з Notion
+async function getPreviousCount(pageId) {
+  try {
+    const response = await notion.pages.retrieve({ page_id: pageId });
+    return response.properties["Previous TG Sub"]?.number || 0;
+  } catch (error) {
+    console.error(`Помилка отримання попереднього значення:`, error.message);
+    return 0;
   }
+}
+
+// Логіка для визначення "Grow/Down"
+function determineTrend(currentCount, previousCount) {
+  if (currentCount > previousCount) return "Up";
+  if (currentCount < previousCount) return "Down";
+  return "neutral";
+}
+
+// Оновлення даних у Notion
+async function updateNotionDatabase(channel, currentCount, previousCount) {
+  const trend = determineTrend(currentCount, previousCount);
 
   try {
     await notion.pages.update({
       page_id: channel.pageId,
       properties: {
-        "TG Sub": {
-          number: count, // Оновлюємо значення
-        },
+        "TG Sub": { number: currentCount },
+        "Previous TG Sub": { number: previousCount },
+        "Grow/Down": { select: { name: trend } },
       },
     });
-    console.log(`Дані для ${channel.name} оновлено: ${count} підписників.`);
+    console.log(`Оновлено ${channel.name}: ${trend}`);
   } catch (error) {
-    console.error(`Помилка оновлення даних у Notion для ${channel.name}:`, error.message);
+    console.error(`Помилка оновлення Notion для ${channel.name}:`, error.message);
   }
 }
 
@@ -70,8 +85,10 @@ async function updateNotionDatabase(channel, count) {
   console.log("Початок оновлення кількості підписників...");
 
   for (const channel of channels) {
-    const count = await getSubscribersCount(channel);
-    await updateNotionDatabase(channel, count);
+    const currentCount = await getSubscribersCount(channel);
+    const previousCount = await getPreviousCount(channel.pageId);
+
+    await updateNotionDatabase(channel, currentCount, previousCount);
   }
 
   console.log("Оновлення завершено!");
