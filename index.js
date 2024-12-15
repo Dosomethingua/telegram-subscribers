@@ -31,26 +31,31 @@ const channels = [
   { name: "True", link: "@trueworld", pageId: "11ac9b1febab807a8271dd757e5fce27" },
 ];
 
-// Функція для отримання кількості підписників каналу
+// Функція для отримання кількості підписників
 async function getSubscribersCount(channel) {
   try {
-    const membersCount = await bot.getChatMembersCount(channel.link);
-    console.log(`Кількість підписників для ${channel.name}: ${membersCount}`);
-    return membersCount;
+    const chat = await bot.getChatMemberCount(channel.link);
+    console.log(`Підписники для ${channel.name}: ${chat}`);
+    return chat;
   } catch (error) {
     console.error(`Помилка отримання підписників для ${channel.name}:`, error.message);
-    return 0; // Повертаємо 0 у випадку помилки
+    return null; // Повертаємо null у випадку помилки
   }
 }
 
 // Оновлення даних у Notion
 async function updateNotionDatabase(channel, count) {
+  if (count === null) {
+    console.log(`Пропускаємо оновлення для ${channel.name} через помилку отримання даних.`);
+    return;
+  }
+
   try {
     await notion.pages.update({
       page_id: channel.pageId,
       properties: {
         tgsubs1: {
-          number: count, // Оновлюємо правильну змінну
+          number: count, // Оновлюємо значення
         },
       },
     });
