@@ -11,7 +11,7 @@ const CHANNELS = [
 const bot = new TelegramBot(BOT_TOKEN, {polling: false});
 
 async function getSubscribersCount(chatId) {
-  const count = await bot.getChatMembersCount(chatId);
+  const count = await bot.getChatMemberCount(chatId);
   return count;
 }
 
