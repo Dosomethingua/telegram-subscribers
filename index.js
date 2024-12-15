@@ -42,14 +42,13 @@ async function getSubscribersCount(channel) {
   }
 }
 
-// Оновлення даних у Notion
 async function updateNotionDatabase(channel, count) {
   try {
     const response = await notion.pages.update({
       page_id: channel.pageId,
       properties: {
         tgsubs1: {
-          number: subscribersCount, // ВАЖЛИВО! Використовуємо "number" для оновлення числового значення
+          number: count, // використовуємо змінну count, яка передається в функцію
         },
       },
     });
@@ -61,6 +60,7 @@ async function updateNotionDatabase(channel, count) {
     );
   }
 }
+
 
 // Основна функція
 (async () => {
