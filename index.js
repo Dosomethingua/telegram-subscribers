@@ -13,6 +13,8 @@ const notion = new Client({ auth: NOTION_API_KEY });
 
 // Список каналів з Page ID
 const channels = [
+// Список каналів з Page ID
+const channels = [
   { name: "Tiny Verse", link: "@tverseofficialchannel", pageId: "142c9b1febab803091caebd3f0d931ee" },
   { name: "Harvest Moon", link: "@nearharvestmoon", pageId: "14ac9b1febab80468b0fdb3365903ef3" },
   { name: "Hot", link: "@hotonnear", pageId: "135c9b1febab80f88539e4b76c1a76b9" },
@@ -29,7 +31,24 @@ const channels = [
   { name: "#Memhash", link: "@memhash", pageId: "14fc9b1febab80ceb8a0ed19a0b79f95" },
   { name: "Not Pixel", link: "@notpixel_channel", pageId: "11ac9b1febab80478ee2f251932a4067" },
   { name: "True", link: "@trueworld", pageId: "11ac9b1febab807a8271dd757e5fce27" },
+  
+  // Нові канали
+  { name: "Monad", link: "@monad_xyz", pageId: "487a289ec87c4e418542842e01ab09d3" },
+  { name: "Berachain", link: "@BerachainPortal", pageId: "8437c0bae0184de79d2aa922ceeea42a" },
+  { name: "Mind Network", link: "@MindNetwork_xyz", pageId: "830453fc700c46e4bd25b4932bef9bba" },
+  { name: "SYNTHR", link: "@synthrcommunitychannel", pageId: "8808d55371094a2a95731926d057736e" },
+  { name: "Analog", link: "@analogtimer", pageId: "1bb4e7cb95ba45b2beee8389ac29afde" },
+  { name: "ZetaChain", link: "@zetachainofficial", pageId: "87a516628ab84eafb9ae4371f97f70ce" },
+  { name: "NFPrompt", link: "@nfprompt", pageId: "30afa62186b44392bcbbb644a8f70b1a" },
+  { name: "DIN", link: "@DINCommunity", pageId: "3cc56e9870444a35a681a66698ab7ebb" },
+  { name: "SecWareX", link: "@GoPlusSecurity", pageId: "efe4b6a3d8444822a06a1e2a0ed6a9d4" },
+  { name: "Rhino.fi", link: "@rhinofiannouncements", pageId: "f0d101f38d684a20a04b2d6a73c9ada5" },
+  { name: "Supra", link: "@SupraOracles", pageId: "3e9d5a32e3c147a8a6f519b6df411c5e" },
+  { name: "Tea", link: "@teaprotocol", pageId: "c703d7c4b94443d59351adc790d16229" },
+  { name: "LayerGame", link: "@LayerGame_chat", pageId: "fe391159117f45baada34694da922ed3" },
+  { name: "Orbiter Finance", link: "@orbiterORB", pageId: "2685a32ec78848c5a7513b792ca8b652" },
 ];
+
 
 // Функція для отримання кількості підписників
 async function getSubscribersCount(channel) {
