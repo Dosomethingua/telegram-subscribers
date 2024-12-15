@@ -54,7 +54,7 @@ async function updateNotionDatabase(channel, count) {
     await notion.pages.update({
       page_id: channel.pageId,
       properties: {
-        tgsubs1: {
+        "TG Sub": {
           number: count, // Оновлюємо значення
         },
       },
