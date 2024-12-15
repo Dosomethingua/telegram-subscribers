@@ -45,9 +45,9 @@ async function getSubscribersCount(channel) {
 async function updateNotionDatabase(channel, count) {
   try {
     const response = await notion.pages.update({
-      page_id: channel.pageId, // Використовуємо Page ID
+      page_id: channel.pageId, // ID сторінки, яку потрібно оновити
       properties: {
-        "TG Sub": { number: count }, // Назва стовпця у вашій таблиці
+        "tgsubs1": { number: count }, // Оновлена назва властивості
       },
     });
     console.log(`Дані для ${channel.name} оновлено: ${count} підписників.`);
