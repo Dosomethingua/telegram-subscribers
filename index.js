@@ -34,8 +34,9 @@ const channels = [
 // Функція для отримання кількості підписників каналу
 async function getSubscribersCount(channel) {
   try {
-    const chat = await bot.getChat(channel.link);
-    return chat.members_count || 0; // Повертаємо 0, якщо members_count не визначено
+    const membersCount = await bot.getChatMembersCount(channel.link);
+    console.log(`Кількість підписників для ${channel.name}: ${membersCount}`);
+    return membersCount;
   } catch (error) {
     console.error(`Помилка отримання підписників для ${channel.name}:`, error.message);
     return 0; // Повертаємо 0 у випадку помилки
@@ -45,20 +46,17 @@ async function getSubscribersCount(channel) {
 // Оновлення даних у Notion
 async function updateNotionDatabase(channel, count) {
   try {
-    const response = await notion.pages.update({
+    await notion.pages.update({
       page_id: channel.pageId,
       properties: {
         tgsubs1: {
-          number: count, // Використовуємо правильну змінну для оновлення
+          number: count, // Оновлюємо правильну змінну
         },
       },
     });
     console.log(`Дані для ${channel.name} оновлено: ${count} підписників.`);
   } catch (error) {
-    console.error(
-      `Помилка оновлення даних у Notion для ${channel.name}:`,
-      error.message
-    );
+    console.error(`Помилка оновлення даних у Notion для ${channel.name}:`, error.message);
   }
 }
 
