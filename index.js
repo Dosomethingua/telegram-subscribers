@@ -13,22 +13,22 @@ const notion = new Client({ auth: NOTION_API_KEY });
 
 // Список каналів
 const channels = [
-  { name: "Tiny Verse", link: "tverseofficialchannel" },
-  { name: "Harvest Moon", link: "nearharvestmoon" },
-  { name: "Hot", link: "hotonnear" },
-  { name: "Pocket Rocket Game", link: "pocket_rocket_game" },
-  { name: "PAWS", link: "pawsupfam" },
-  { name: "Bums", link: "bums_official" },
-  { name: "Drops", link: "EtherDrops_News" },
-  { name: "Cats&Dogs", link: "catsdogs_community" },
-  { name: "OKX Racer", link: "okx_racer_official_announcement" },
-  { name: "Telegram Apps Center", link: "trendingapps" },
-  { name: "Blink", link: "blink_en" },
-  { name: "Gomble (EggDrop)", link: "officialgomble" },
-  { name: "Coub", link: "coubnews" },
-  { name: "#Memhash", link: "memhash" },
-  { name: "Not Pixel", link: "notpixel_channel" },
-  { name: "True", link: "trueworld" },
+  { name: "Tiny Verse", link: "@tverseofficialchannel" },
+  { name: "Harvest Moon", link: "@nearharvestmoon" },
+  { name: "Hot", link: "@hotonnear" },
+  { name: "Pocket Rocket Game", link: "@pocket_rocket_game" },
+  { name: "PAWS", link: "@pawsupfam" },
+  { name: "Bums", link: "@bums_official" },
+  { name: "Drops", link: "@EtherDrops_News" },
+  { name: "Cats&Dogs", link: "@catsdogs_community" },
+  { name: "OKX Racer", link: "@okx_racer_official_announcement" },
+  { name: "Telegram Apps Center", link: "@trendingapps" },
+  { name: "Blink", link: "@blink_en" },
+  { name: "Gomble (EggDrop)", link: "@officialgomble" },
+  { name: "Coub", link: "@coubnews" },
+  { name: "#Memhash", link: "@memhash" },
+  { name: "Not Pixel", link: "@notpixel_channel" },
+  { name: "True", link: "@trueworld" },
 ];
 
 // Функція для отримання кількості підписників
