@@ -44,15 +44,23 @@ async function getSubscribersCount(channel) {
 // Оновлення даних у Notion
 async function updateNotionDatabase(channel, count) {
   try {
-    const response = await notion.pages.update({
-      page_id: channel.pageId, // ID сторінки, яку потрібно оновити
+    const response = await notion.pages.create({
+      parent: { database_id: NOTION_DATABASE_ID },
       properties: {
-        "tgsubs1": { number: count }, // Оновлена назва властивості
+        Name: {
+          title: [{ text: { content: channel.name } }],
+        },
+        tgsubs1: {
+          number: count, // ВАЖЛИВО! Використовуйте "number" для властивостей типу Number
+        },
       },
     });
     console.log(`Дані для ${channel.name} оновлено: ${count} підписників.`);
   } catch (error) {
-    console.error(`Помилка оновлення даних у Notion для ${channel.name}:`, error.message);
+    console.error(
+      `Помилка оновлення даних у Notion для ${channel.name}:`,
+      error.message
+    );
   }
 }
 
