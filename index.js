@@ -13,8 +13,6 @@ const notion = new Client({ auth: NOTION_API_KEY });
 
 // Список каналів з Page ID
 const channels = [
-// Список каналів з Page ID
-const channels = [
   { name: "Tiny Verse", link: "@tverseofficialchannel", pageId: "142c9b1febab803091caebd3f0d931ee" },
   { name: "Harvest Moon", link: "@nearharvestmoon", pageId: "14ac9b1febab80468b0fdb3365903ef3" },
   { name: "Hot", link: "@hotonnear", pageId: "135c9b1febab80f88539e4b76c1a76b9" },
