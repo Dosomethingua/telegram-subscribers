@@ -43,6 +43,7 @@ const channels = [
   { name: "Tea", link: "@teaprotocol", pageId: "c703d7c4b94443d59351adc790d16229" },
   { name: "Major", link: "@starsmajor", pageId: "11cc9b1febab80979911fb99fed569ba" },
   { name: "CARV", link: "@carv_official_global", pageId: "61a812e52d154b329b5d47fc487656e2" },
+  { name: "Wizzwoods", link: "@wizzwoods_game", pageId: "15ec9b1febab802aaf29dd75a9678e2e" },
   { name: "LayerGame", link: "@LayerGame_chat", pageId: "fe391159117f45baada34694da922ed3" }
 ];
 
