@@ -47,18 +47,34 @@ const channels = [
   { name: "LayerGame", link: "@LayerGame_chat", pageId: "fe391159117f45baada34694da922ed3" }
 ];
 
+// Допоміжна функція для очікування
+function sleep(ms) {
+  return new Promise(resolve => setTimeout(resolve, ms));
+}
 
-
-// Функція для отримання кількості підписників
-async function getSubscribersCount(channel) {
-  try {
-    const count = await bot.getChatMemberCount(channel.link);
-    console.log(`Підписники для ${channel.name}: ${count}`);
-    return count;
-  } catch (error) {
-    console.error(`Помилка для ${channel.name}:`, error.message);
-    return 0;
+// Функція для отримання кількості підписників з логікою ретраю
+async function getSubscribersCount(channel, attempts = 3) {
+  for (let i = 0; i < attempts; i++) {
+    try {
+      const count = await bot.getChatMemberCount(channel.link);
+      console.log(`Підписники для ${channel.name}: ${count}`);
+      return count;
+    } catch (error) {
+      // Перевірка на помилку 429
+      if (error.response && error.response.body && error.response.body.parameters && error.response.body.parameters.retry_after) {
+        const retryAfter = error.response.body.parameters.retry_after;
+        console.error(`Помилка для ${channel.name}: Too Many Requests. Повторна спроба через ${retryAfter} секунд...`);
+        await sleep(retryAfter * 1000);
+      } else {
+        console.error(`Помилка для ${channel.name}:`, error.message);
+        // Якщо це не 429, або інша помилка після ретраїв, йдемо на нову спробу
+      }
+    }
   }
+
+  // Якщо після всіх спроб не вдалось отримати кількість – повертаємо null, щоб пропустити оновлення
+  console.error(`Не вдалося отримати підписників для ${channel.name} після ${attempts} спроб.`);
+  return null;
 }
 
 // Отримання попереднього значення з Notion
@@ -104,6 +120,11 @@ async function updateNotionDatabase(channel, currentCount, previousCount) {
 
   for (const channel of channels) {
     const currentCount = await getSubscribersCount(channel);
+    if (currentCount === null) {
+      // Пропускаємо оновлення в Notion, якщо не змогли отримати підписників
+      console.log(`Пропускаємо оновлення для ${channel.name} через помилки.`);
+      continue;
+    }
     const previousCount = await getPreviousCount(channel.pageId);
 
     await updateNotionDatabase(channel, currentCount, previousCount);
