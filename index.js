@@ -1,17 +1,26 @@
+/***************************************************************
+ *          CODE: Telegram → Notion (TG Sub / Prev Sub)
+ ***************************************************************/
 const TelegramBot = require('node-telegram-bot-api');
 const { Client } = require('@notionhq/client');
 require('dotenv').config();
 
-// Конфігурація токенів та ID
+// ---------------------------------------------------
+// 1. Зчитуємо ключі із .env або інших змінних середовища
+// ---------------------------------------------------
 const TELEGRAM_BOT_TOKEN = process.env.TELEGRAM_BOT_TOKEN;
 const NOTION_API_KEY = process.env.NOTION_API_KEY;
 const NOTION_DATABASE_ID = process.env.NOTION_DATABASE_ID;
 
-// Ініціалізація Telegram бота та Notion клієнта
+// ---------------------------------------------------
+// 2. Ініціалізація Telegram бота та Notion клієнта
+// ---------------------------------------------------
 const bot = new TelegramBot(TELEGRAM_BOT_TOKEN, { polling: false });
 const notion = new Client({ auth: NOTION_API_KEY });
 
-// Список каналів з Page ID
+// ---------------------------------------------------
+// 3. Список каналів із відповідними Page ID у Notion
+// ---------------------------------------------------
 const channels = [
   { name: "Monad", link: "@monad_xyz", pageId: "487a289ec87c4e418542842e01ab09d3" },
   { name: "Berachain", link: "@BerachainPortal", pageId: "8437c0bae0184de79d2aa922ceeea42a" },
@@ -47,12 +56,17 @@ const channels = [
   { name: "LayerGame", link: "@LayerGame_chat", pageId: "fe391159117f45baada34694da922ed3" }
 ];
 
-// Допоміжна функція для очікування
+// ---------------------------------------------------
+// 4. Допоміжна функція для паузи (затримки)
+// ---------------------------------------------------
 function sleep(ms) {
-  return new Promise(resolve => setTimeout(resolve, ms));
+  return new Promise((resolve) => setTimeout(resolve, ms));
 }
 
-// Функція для отримання кількості підписників з логікою ретраю
+// ---------------------------------------------------
+// 5. Отримуємо поточну кількість підписників у каналі
+//    (з ретраями при помилці "Too Many Requests (429)")
+// ---------------------------------------------------
 async function getSubscribersCount(channel, attempts = 3) {
   for (let i = 0; i < attempts; i++) {
     try {
@@ -60,74 +74,102 @@ async function getSubscribersCount(channel, attempts = 3) {
       console.log(`Підписники для ${channel.name}: ${count}`);
       return count;
     } catch (error) {
-      // Перевірка на помилку 429
-      if (error.response && error.response.body && error.response.body.parameters && error.response.body.parameters.retry_after) {
+      // Якщо перевищено ліміт запитів до Telegram
+      if (
+        error.response &&
+        error.response.body &&
+        error.response.body.parameters &&
+        error.response.body.parameters.retry_after
+      ) {
         const retryAfter = error.response.body.parameters.retry_after;
-        console.error(`Помилка для ${channel.name}: Too Many Requests. Повторна спроба через ${retryAfter} секунд...`);
+        console.error(
+          `Помилка для ${channel.name}: Too Many Requests. ` +
+          `Повторна спроба через ${retryAfter} секунд...`
+        );
         await sleep(retryAfter * 1000);
       } else {
         console.error(`Помилка для ${channel.name}:`, error.message);
-        // Якщо це не 429, або інша помилка після ретраїв, йдемо на нову спробу
       }
     }
   }
-
-  // Якщо після всіх спроб не вдалось отримати кількість – повертаємо null, щоб пропустити оновлення
+  // Якщо після усіх спроб не вдалося отримати кількість
   console.error(`Не вдалося отримати підписників для ${channel.name} після ${attempts} спроб.`);
   return null;
 }
 
-// Отримання попереднього значення з Notion
-async function getPreviousCount(pageId) {
+// ---------------------------------------------------
+// 6. Отримуємо (старе) значення з поля "TG Sub" у Notion
+// ---------------------------------------------------
+async function getCurrentTgSub(pageId) {
   try {
     const response = await notion.pages.retrieve({ page_id: pageId });
-    return response.properties["Previous TG Sub"]?.number || 0;
+    // Читаємо поточне число з поля "TG Sub"
+    return response.properties["TG Sub"]?.number || 0;
   } catch (error) {
-    console.error(`Помилка отримання попереднього значення:`, error.message);
+    console.error(`Помилка зчитування "TG Sub" для сторінки ${pageId}:`, error.message);
     return 0;
   }
 }
 
-// Логіка для визначення "Grow/Down"
-function determineTrend(currentCount, previousCount) {
-  if (currentCount > previousCount) return "Up";
-  if (currentCount < previousCount) return "Down";
+// ---------------------------------------------------
+// 7. Функція для обчислення тренду
+// ---------------------------------------------------
+function determineTrend(newValue, oldValue) {
+  if (newValue > oldValue) return "Up";
+  if (newValue < oldValue) return "Down";
   return "neutral";
 }
 
-// Оновлення даних у Notion
-async function updateNotionDatabase(channel, currentCount, previousCount) {
-  const trend = determineTrend(currentCount, previousCount);
+// ---------------------------------------------------
+// 8. Оновлення даних у Notion
+//    - Переносимо старе TG Sub → Previous TG Sub
+//    - Записуємо нове в TG Sub
+//    - Вираховуємо тренд (Grow/Down)
+// ---------------------------------------------------
+async function updateNotionPage(channel, newValue, oldValue) {
+  const trend = determineTrend(newValue, oldValue);
 
   try {
     await notion.pages.update({
       page_id: channel.pageId,
       properties: {
-        "TG Sub": { number: currentCount },
-        "Previous TG Sub": { number: previousCount },
+        // 1. Старе значення з "TG Sub" → "Previous TG Sub"
+        "Previous TG Sub": { number: oldValue },
+
+        // 2. Нове значення → "TG Sub"
+        "TG Sub": { number: newValue },
+
+        // 3. Тренд
         "Grow/Down": { select: { name: trend } },
       },
     });
-    console.log(`Оновлено ${channel.name}: ${trend}`);
+    console.log(`Оновлено ${channel.name}. Тренд: ${trend}`);
   } catch (error) {
     console.error(`Помилка оновлення Notion для ${channel.name}:`, error.message);
   }
 }
 
-// Основна функція
+// ---------------------------------------------------
+// 9. Основний процес: обходимо всі канали, зчитуємо
+//    нову кількість підписників, оновлюємо Notion
+// ---------------------------------------------------
 (async () => {
   console.log("Початок оновлення кількості підписників...");
 
   for (const channel of channels) {
-    const currentCount = await getSubscribersCount(channel);
-    if (currentCount === null) {
-      // Пропускаємо оновлення в Notion, якщо не змогли отримати підписників
-      console.log(`Пропускаємо оновлення для ${channel.name} через помилки.`);
+    // 9.1. Отримуємо нову кількість підписників із Telegram
+    const newCount = await getSubscribersCount(channel);
+    if (newCount === null) {
+      console.warn(`Пропускаємо оновлення для ${channel.name}, бо не вдалося отримати підписників.`);
       continue;
     }
-    const previousCount = await getPreviousCount(channel.pageId);
 
-    await updateNotionDatabase(channel, currentCount, previousCount);
+    // 9.2. Зчитуємо поточний TG Sub (старий) із Notion
+    const oldCount = await getCurrentTgSub(channel.pageId);
+
+    // 9.3. Оновлюємо Notion: переносимо oldCount → "Previous TG Sub",
+    //     записуємо newCount у "TG Sub", обчислюємо "Grow/Down".
+    await updateNotionPage(channel, newCount, oldCount);
   }
 
   console.log("Оновлення завершено!");
